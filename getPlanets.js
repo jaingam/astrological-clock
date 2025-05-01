@@ -8,7 +8,8 @@ let dtt = julianDate - 2451545.0;
 let t = dtt / 36525.0; //The fraction of the century elapsed since the reference date.
 const obliquity = 23 + 26 / 60 + 21.448 / 3600 - 46.815 / 3600 * t - 0.00059 / 3600 * t * t + 0.001813 * t * t * t;
 const today = new Date().toLocaleDateString("en-CA");
-
+const earthSize = 5;
+const earthMeanRaius = 6271.01;
 // function calculateLocalSiderealTime(longitude) {
 //     // let latitude,longitude;
 //     let greenwichMeanSiderealTime = 280.46061837 + 360.98564736629 * dtt + 0.000387933 * (t ** 2) - (t ** 3) / 38710000
@@ -30,7 +31,7 @@ const today = new Date().toLocaleDateString("en-CA");
 export const getEarth = () => {
 
     const earthGroup = new THREE.Group()
-    const geometry = new THREE.IcosahedronGeometry(5, 3);
+    const geometry = new THREE.SphereGeometry(earthSize);
     const material = new THREE.MeshPhongMaterial({
         map: loader.load("./textures/earthmap1k.jpg",),
         lightMap: loader.load("./textures/earthlights1k.jpg"),
@@ -39,7 +40,7 @@ export const getEarth = () => {
         specularMap: loader.load("./textures/earthspec1k.jpg"),
         specular: 0xFFFFFF,
         // roughness : 1- 0.294,
-        shininess :0.294
+        shininess : 0.367
     });
     const earthMesh = new THREE.Mesh(geometry, material);
     const lightsMat = new THREE.MeshPhongMaterial({
@@ -60,7 +61,7 @@ export const getEarth = () => {
     console.log(x,y,z)
     earthGroup.position.set(x, y, z)
     
-    earthGroup.rotateX(-23.439*Math.PI/180);
+    earthGroup.rotateY(23.4392911 * Math.PI/180);
     earthGroup.rotateX(Math.PI/2);
     return [earthGroup, earthGroup.position];
 }
@@ -68,7 +69,7 @@ export const getEarth = () => {
 export const getMercury = () => {
 
     const mercuryGroup = new THREE.Group()
-    const geometry = new THREE.IcosahedronGeometry(5*0.3829, 3);
+    const geometry = new THREE.SphereGeometry(earthSize * 2439.4 / earthMeanRaius);
     const material = new THREE.MeshPhongMaterial({
         map: loader.load("./textures/mercurymap.jpg",),
         bumpMap: loader.load("./textures/mercurybump.jpg"),
@@ -83,7 +84,7 @@ export const getMercury = () => {
     )
     console.log(x,y,z)
     mercuryGroup.position.set(x, y, z)
-    mercuryGroup.rotateX(2.04*Math.PI/180);
+    mercuryGroup.rotateX(2.11/60 * Math.PI/180);
     mercuryGroup.rotateX(Math.PI/2);
 
     return mercuryGroup;
@@ -93,12 +94,12 @@ export const getMercury = () => {
 export const getVenus = () => {
 
     const venusGroup = new THREE.Group()
-    const geometry = new THREE.IcosahedronGeometry(5*0.9499, 3);
+    const geometry = new THREE.SphereGeometry(earthSize * 6051.84 / earthMeanRaius);
     const material = new THREE.MeshPhongMaterial({
         map: loader.load("./textures/venusmap.jpg",),
         bumpScale: 0.1,
         // roughness : 1- 0.77,
-        shininess:0.77
+        shininess: 0.65
     });
     const venusMesh = new THREE.Mesh(geometry, material);
     venusGroup.add(venusMesh);
@@ -107,20 +108,19 @@ export const getVenus = () => {
     )
     console.log(x,y,z)
     venusGroup.position.set(x, y, z)
-    venusGroup.rotateX(177.36*Math.PI/180);
+    venusGroup.rotateX(177.36 * Math.PI / 180);
     venusGroup.rotateX(Math.PI/2);
     return venusGroup;
 }
 
 export const getMars = () => {
     const marsGroup = new THREE.Group()
-    const geometry = new THREE.IcosahedronGeometry(5*0.533, 3);
+    const geometry = new THREE.SphereGeometry(earthSize * 3389.92 / earthMeanRaius);
     const material = new THREE.MeshPhongMaterial({
         map: loader.load("./textures/marsmap.jpg",),
         bumpMap: loader.load("./textures/marsbump.jpg"),
         bumpScale: 0.1,
-        // roughness : 1- 0.250
-        shininess:0.250
+        shininess: 0.150
         
     });
     const marsMesh = new THREE.Mesh(geometry, material);
@@ -130,7 +130,7 @@ export const getMars = () => {
     )
     console.log(x,y,z)
     marsGroup.position.set(x, y, z)
-    marsGroup.rotateX(2.04*Math.PI/180);
+    marsGroup.rotateX(25.19 * Math.PI/180);
     marsGroup.rotateX(Math.PI/2);
     return marsGroup;
 }
@@ -138,11 +138,10 @@ export const getMars = () => {
 export const getJupiter = () => {
 
     const jupiterGroup = new THREE.Group()
-    const geometry = new THREE.IcosahedronGeometry(5*9.1402, 3);
+    const geometry = new THREE.SphereGeometry(earthSize * 69911 / earthMeanRaius);
     const material = new THREE.MeshPhongMaterial({
         map: loader.load("./textures/jupitermap.jpg",),
-        // roughness : 1- 0.503
-        shininess:0.503
+        shininess: 0.52
     });
     const jupiterMesh = new THREE.Mesh(geometry, material);
     jupiterGroup.add(jupiterMesh);
@@ -152,7 +151,7 @@ export const getJupiter = () => {
     console.log(x,y,z)
     jupiterGroup.position.set(x, y, z)
     jupiterGroup.rotateX(Math.PI/2);
-    jupiterGroup.rotateX(3.13*Math.PI/180);
+    jupiterGroup.rotateX(3.13 * Math.PI/180);
 
     return jupiterGroup;
 }
@@ -161,11 +160,10 @@ export const getJupiter = () => {
 export const getSaturn = () => {
 
     const saturnGroup = new THREE.Group()
-    const geometry = new THREE.IcosahedronGeometry(5*9.1402, 3);
+    const geometry = new THREE.SphereGeometry(earthSize * 58232 / earthMeanRaius);
     const material = new THREE.MeshPhongMaterial({
         map: loader.load("./textures/saturnmap.jpg",),
-        // roughness : 1-0.342,
-        shininess: 0.342
+        shininess: 0.47
         // side: THREE.DoubleSide
     });
 
@@ -174,13 +172,13 @@ export const getSaturn = () => {
     // saturnMesh.receiveShadow = true;
     saturnGroup.add(saturnMesh);
 
-    const ringGeometry = new THREE.RingGeometry(5*(6,630+58232) /6371.0, 5*28.0853869094, 32); //(120,700+58232)/6371.0 //(ring radius+radius)/earthRadius
-   const ringMap= loader.load("./textures/saturnringcolor.jpg")
-   ringMap.wrapS= THREE.RepeatWrapping
-    ringMap.wrapT= THREE.RepeatWrapping ;
-   const ringAlphaMap= loader.load("./textures/saturnringalpha.jpg");
-   ringAlphaMap.wrapS= THREE.RepeatWrapping
-   ringAlphaMap.wrapT= THREE.RepeatWrapping ;
+    const ringGeometry = new THREE.RingGeometry(earthSize * (6,630 + 58232) / earthMeanRaius, earthSize * (120,700 + 58232)/earthMeanRaius, 32); //(120,700+58232)/6371.0 //(ring radius+radius)/earthRadius
+    const ringMap = loader.load("./textures/saturnringcolor.jpg")
+    ringMap.wrapS = THREE.RepeatWrapping
+    ringMap.wrapT = THREE.RepeatWrapping ;
+    const ringAlphaMap= loader.load("./textures/saturnringalpha.jpg");
+    ringAlphaMap.wrapS= THREE.RepeatWrapping
+    ringAlphaMap.wrapT= THREE.RepeatWrapping ;
     const ringMaterial = new THREE.MeshPhongMaterial({
         map: ringMap,
         alphaMap: ringAlphaMap,
@@ -219,7 +217,7 @@ export const getSaturn = () => {
     // pl.position.set(x,y,z+400)
     // saturnGroup.add(pl);
     saturnMesh.rotateX(Math.PI/2);
-    saturnGroup.rotateX(26.73*Math.PI/180);
+    saturnGroup.rotateX(26.73 * Math.PI/180);
     return saturnGroup;
 }
 
@@ -331,6 +329,7 @@ const getPosition = (julianDate,
     longitudeAsc0, longitudeAscCent,
     b=0, c=0, s=0, f=0) => {
     // Formulae from https://ssd.jpl.nasa.gov/planets/approx_pos.html
+    // X, Y is the base plane
 
     const semiMajorAxis = semiMajorAxis0+ t* semiMajorAxisCent;
     const eccentricity = eccentricity0+ t* eccentricityCent;

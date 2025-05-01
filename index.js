@@ -1,8 +1,11 @@
 import * as THREE from "three";
 import { OrbitControls } from "jsm/controls/OrbitControls.js";
 // import RAPIER from 'https://cdn.skypack.dev/@dimforge/rapier3d-compat';
-import { TextGeometry,FontLoader  } from 'jsm/Addons.js';
+import { TextGeometry, FontLoader } from 'jsm/Addons.js';
 import { getEarth, getJupiter, getMars, getMercury, getSaturn, getVenus } from "./getPlanets.js";
+
+
+
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -24,25 +27,10 @@ controls.dampingFactor = 0.03;
 controls.maxDistance = domeSize - 100;
 
 
-const earthAxialTilt = -23.439 * Math.PI / 180;
+const earthAxialTilt = 23.4392911 * Math.PI / 180;
 
 const loader = new THREE.TextureLoader;
 
-const domeGeometry = new THREE.IcosahedronGeometry(domeSize, 30);
-const domeMaterial = new THREE.MeshBasicMaterial({
-  map: loader.load("/textures/starmap_c8k.jpg"),
-  side: THREE.DoubleSide,
-  color: 0x888888
-});
-
-const constellTexture = loader.load("/textures/constellation_figures_8k.png") //cel
-constellTexture.flipY = false;
-const constellationsMaterial = new THREE.MeshBasicMaterial({
-  map: constellTexture,
-  alphaMap: constellTexture,
-  side: THREE.DoubleSide,
-  transparent: true
-});
 
 const [earth, earthPos] = getEarth();
 const mercury = getMercury();
@@ -51,83 +39,76 @@ const mars = getMars();
 const jupiter = getJupiter();
 const saturn = getSaturn();
 
-// const xGeometry = new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3( -0, earthPos.y, earthPos.z ) ,new THREE.Vector3( 500, earthPos.y, earthPos.z) ] );
-// const yGeometry = new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3( earthPos.x, -0, earthPos.z ) ,new THREE.Vector3( earthPos.x, 500, earthPos.z) ] );
-// const zGeometry = new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3(earthPos.x, earthPos.y, -0 ) ,new THREE.Vector3( earthPos.x, earthPos.y, 500) ] );
-// const poleGeometry = new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3(earthPos.x, earthPos.y, -0 ) ,new THREE.Vector3( earthPos.x, earthPos.y, 500) ] );
-// const lineXMaterial = new THREE.LineBasicMaterial( {
-// 	color: 0xff0000,
-// 	linewidth: 20,
-// 	linecap: 'round', //ignored by WebGLRenderer
-// 	linejoin:  'round' //ignored by WebGLRenderer
-// } );
-// const lineYMaterial = new THREE.LineBasicMaterial( {
-// 	color: 0x00ff00,
-// 	linewidth: 20,
-// 	linecap: 'round', //ignored by WebGLRenderer
-// 	linejoin:  'round' //ignored by WebGLRenderer
-// } );
-// const lineZMaterial = new THREE.LineBasicMaterial( {
-// 	color: 0x0000ff,
-// 	linewidth: 20,
-// 	linecap: 'round', //ignored by WebGLRenderer
-// 	linejoin:  'round' //ignored by WebGLRenderer
-// } );
-// const linePoleMaterial = new THREE.LineBasicMaterial( {
-// 	color: 0x00FFff,
-// 	linewidth: 20,
-// 	linecap: 'round', //ignored by WebGLRenderer
-// 	linejoin:  'round' //ignored by WebGLRenderer
-// } );
-
-// const xLine = new THREE.Line(xGeometry,lineXMaterial)
-// const yLine = new THREE.Line(yGeometry,lineYMaterial)
-// const zLine = new THREE.Line(zGeometry,lineZMaterial)
-
-// const poleLine = new THREE.Line(poleGeometry,linePoleMaterial)
-// const sunPoleGeo = new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3( 0, 0, -1000 ) ,new THREE.Vector3( 0, 0, 1000) ] );
-// const sunPole = new THREE.Line(sunPoleGeo,linePoleMaterial)
-// poleLine.rotateX(earthAxialTilt)
-
-// scene.add(xLine)
-// scene.add(yLine)
-// scene.add(zLine)
-// scene.add(poleLine)
-// scene.add(sunPole)
+// const earthAxesHelper = new THREE.AxesHelper(2000);
+// earthAxesHelper.position.set(earthPos.x, earthPos.y, earthPos.z)
+// scene.add(earthAxesHelper);
 
 
+const domeGeometry = new THREE.SphereGeometry(domeSize);
+const domeMaterial = new THREE.MeshBasicMaterial({
+  map: loader.load("./textures/starmap_c8k.jpg"),
+  side: THREE.DoubleSide,
+  color: 0x888888
+});
+
+const constellTexture = loader.load("./textures/constellation_figures_8k.png") //cel
+constellTexture.flipY = false;
+const constellationsMaterial = new THREE.MeshBasicMaterial({
+  map: constellTexture,
+  alphaMap: constellTexture,
+  side: THREE.DoubleSide,
+  transparent: true
+});
 
 const dome = new THREE.Mesh(domeGeometry, domeMaterial);
 const stars = new THREE.Mesh(domeGeometry, constellationsMaterial);
 dome.renderDepth = domeSize;
+
+let radius = domeSize - 10;
+let latSegments = 18;  // 10° increments
+let longSegments = 18; // 10° increments
+
+let sGeometry = new THREE.SphereGeometry(radius, longSegments, latSegments);
+let sMaterial = new THREE.MeshBasicMaterial({
+  map: loader.load("./textures/celestial_grid_16k_print.jpg") ,
+  alphaMap: loader.load("./textures/celestial_grid_16k_print.jpg") ,
+  side: THREE.DoubleSide,
+  transparent: true
+});
+const sphere = new THREE.Mesh(sGeometry, sMaterial);
+
+
 const sky = new THREE.Group();
 sky.add(dome);
 sky.add(stars);
+sky.add(sphere)
+
+const skyAxesHelper = new THREE.AxesHelper(2000);
 sky.position.set(earthPos.x, earthPos.y, earthPos.z);
-sky.rotateX(earthAxialTilt) // for Celestial Coordinate system
-sky.rotateY(Math.PI); // for Celestial Coordinate system
-sky.rotateX(Math.PI / 2); // for Celestial Coordinate system
 
+sky.add(skyAxesHelper)
+sky.rotateX(Math.PI * 3 / 2 + 0) //for THREEJS coordinate system (PI) + Texture specific angle (PI/2)
+sky.rotateZ(earthAxialTilt) // for Equatorial Coordinate system
+// sky.rotateY(earthAxialTilt)
+scene.add(sky)
 
-const disc = new THREE.RingGeometry(domeSize - 500, domeSize, 24);
-const discLineMaterial = new THREE.MeshBasicMaterial({
+const zodiacPlaneGeometry = new THREE.RingGeometry(domeSize - 500, domeSize, 24);
+
+const zodiacPlaneMaterial = new THREE.LineBasicMaterial({
   color: 0xFFFFFF,
   side: THREE.DoubleSide,
+  wireframe:true,
   transparent: true
 })
-const discMesh = new THREE.Mesh(disc, discLineMaterial)
+const zodiacPlaneMesh = new THREE.Mesh(zodiacPlaneGeometry, zodiacPlaneMaterial)
 // const discLineMesh = new THREE.Mesh(discLine,discLineMaterial)
-const discGroup = new THREE.Group();
 
-// discGroup.add(discLineMesh)
+// const zodiacPlaneHelper = new THREE.AxesHelper(2000);
+const zodiacPlaneGroup = new THREE.Group();
 
-// discMesh.position.set(earthPos.x, earthPos.y, earthPos.z,)
-// discTestMesh.position.set(earthPos.x, earthPos.y, earthPos.z + 1,)
-// discGroup.add(discMesh)
-
-discGroup.position.set(earthPos.x, earthPos.y, earthPos.z,)
-discMesh.rotateX(earthAxialTilt);
-scene.add(sky)
+// zodiacPlaneGroup.add(zodiacPlaneMesh)
+// zodiacPlaneGroup.add(zodiacPlaneHelper);
+zodiacPlaneGroup.position.set(earthPos.x, earthPos.y, earthPos.z,)
 
 
 new FontLoader().load(
@@ -166,10 +147,10 @@ new FontLoader().load(
 
     signs.forEach((sign, i) => {
       sign.position.set((Math.cos(i / 12 * 2 * Math.PI) * (domeSize - 250)) + earthPos.x,
-      (Math.sin(i / 12 * 2 * Math.PI) * (domeSize - 250)) +earthPos.y,
-      earthPos.z)
+        (Math.sin(i / 12 * 2 * Math.PI) * (domeSize - 250)) + earthPos.y,
+        earthPos.z)
       // console.log(sign.position);
-      console.log(new THREE.Vector3(sign.position.x -earthPos.x,sign.position.y -earthPos.y ,sign.position.z - earthPos.z));
+      console.log(new THREE.Vector3(sign.position.x - earthPos.x, sign.position.y - earthPos.y, sign.position.z - earthPos.z));
       signGroup.add(sign)
     })
 
@@ -177,15 +158,16 @@ new FontLoader().load(
     // signGroup.translateY(earthPos.y);
     // signGroup.translateY(earthPos.z);
 
-    signGroup.rotation.set (earthAxialTilt, 0, 0);
+    // signGroup.rotation.set (earthAxialTilt, 0, 0); // no need to set rotation, the normal plane is already ecliptic.
 
     // console.log(discGroup.position);
     // console.log(signGroup.position);
     // console.log(signGroup.children[1].position);
-    discGroup.add(signGroup)
-    // scene.add(signGroup);
+    zodiacPlaneGroup.add(signGroup)
   });
-    scene.add(discGroup);
+zodiacPlaneGroup.rotateY(earthAxialTilt); 
+zodiacPlaneGroup.rotateX(earthAxialTilt); //should be value of sidereal why?
+scene.add(zodiacPlaneGroup);
 
 
 
@@ -205,7 +187,7 @@ const sunMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 100
 });
 
-const sunGeometry = new THREE.IcosahedronGeometry(7, 5);
+const sunGeometry = new THREE.SphereGeometry(7);
 const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
 
 const sunLight = new THREE.PointLight(0xffffff, 500, 0, 1);
